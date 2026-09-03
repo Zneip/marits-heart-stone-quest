@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#183c4a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Marits Quest" />
+    <link rel="manifest" href="manifest.webmanifest?v=d391737311ea" />
+    <link rel="icon" href="favicon.svg?v=10a021b63ca4" type="image/svg+xml" />
+    <title>Marits Heart Stone Quest</title>
+  <link rel="stylesheet" href="styles.css?v=eba89845fccb" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="game-frame" aria-label="Marits Heart Stone Quest">
+        <canvas id="game" aria-label="Spillområde. Trykk for å hoppe."></canvas>
+
+        <header class="hud" aria-live="polite">
+          <div class="brand"><span class="brand-heart">♥</span><span>MARITS</span><small>HEART STONE QUEST</small></div>
+          <div class="hud-right">
+            <div class="metric"><span>REISE</span><strong id="distance">0 m</strong></div>
+          </div>
+        </header>
+
+        <div id="statusDock" class="status-dock hidden-controls">
+          <div class="performance-meters">
+            <div id="speedPanel" class="speed-panel" role="meter" aria-label="Fart" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="speed-track"><div id="speedFill" class="speed-fill"></div></div>
+              <span class="speed-label">FART</span>
+            </div>
+            <div id="strengthPanel" class="strength-panel" role="meter" aria-label="Hoppekraft" aria-valuemin="5" aria-valuemax="100" aria-valuenow="100">
+              <div class="strength-track"><div id="strengthFill" class="strength-fill"></div></div>
+              <span class="strength-label">HOPPEKRAFT</span>
+            </div>
+          </div>
+          <div id="heartCounter" class="heart-counter" aria-label="15 hjerter">
+            <span class="heart-shape" aria-hidden="true">♥</span>
+            <strong id="hearts">15</strong>
+          </div>
+          <div id="fishMeter" class="fish-meter" aria-label="0 dobbelthopp">
+            <span class="fish-slot"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+            <span class="fish-slot"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+            <span class="fish-slot"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M11 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+            <span class="fish-slot locked"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+            <span class="fish-slot locked"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+            <span class="fish-slot locked"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+          </div>
+        </div>
+
+        <div id="eventBanner" class="event-banner" aria-live="assertive"></div>
+        <div id="restCountdown" class="rest-countdown hidden" aria-live="polite">
+          <span id="restCountdownLabel">BÅLPAUSE</span>
+          <strong id="restCountdownValue">5</strong>
+        </div>
+        <div id="restActions" class="rest-actions hidden" aria-label="Fortsett fra hytta">
+          <button id="restContinueButton" class="rest-continue-button" type="button">FORTSETT</button>
+        </div>
+        <button id="bonfireButton" class="bonfire hidden-controls" type="button" aria-label="Tenn bål, koster 10 hjerter">
+          <svg class="bonfire-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false">
+            <path class="bonfire-log" d="m17 62 43-10M21 51l40 14" />
+            <path class="bonfire-flame outer" d="M40 60C24 49 32 28 38 18c1 10 17 14 12 32-2 6-6 9-10 10Z" />
+            <path class="bonfire-flame inner" d="M40 58c-6-7-2-17 2-24 1 8 9 11 5 21-2 3-4 4-7 3Z" />
+            <ellipse class="bonfire-core" cx="41" cy="51" rx="4" ry="8" />
+          </svg>
+          <span class="bonfire-cost" aria-hidden="true">10 ♥</span>
+        </button>
+        <div id="shopInventory" class="shop-inventory hidden-controls" aria-label="Utstyr fra butikken">
+          <button id="snackButton" class="inventory-item snack-item hidden" type="button" aria-label="Spis Kvikklunsj">
+            <svg viewBox="0 0 56 56" aria-hidden="true">
+              <path class="snack-wrapper" d="M14 7h28l5 8-6 34H15L9 15Z"/>
+              <path class="snack-bar" d="M17 12h22l3 6-4 25H18l-4-25Z"/>
+              <path class="snack-grid" d="M19 19h19M18 27h19M17 35h19M25 14l-3 29M34 14l-3 29"/>
+            </svg>
+            <span id="snackCount">0</span>
+            <small class="inventory-key" aria-hidden="true">K</small>
+          </button>
+          <div id="firstAidBadge" class="inventory-item first-aid-item hidden" aria-label="Førstehjelpspakke klar">
+            <svg viewBox="0 0 56 56" aria-hidden="true">
+              <rect x="8" y="16" width="40" height="32" rx="7"/>
+              <path d="M21 16v-5h14v5M28 23v18M19 32h18"/>
+            </svg>
+            <span id="firstAidCount">0</span>
+          </div>
+        </div>
+        <div class="utility-actions">
+          <button id="fullscreenButton" class="fullscreen" type="button" aria-label="Vis spillet i fullskjerm"><span id="fullscreenLabel">FULLSKJERM</span> <b id="fullscreenIcon">⛶</b></button>
+          <button id="soundButton" class="sound" type="button" aria-label="Skru av lyd">♫</button>
+        </div>
+        <div id="gameActions" class="game-actions hidden-controls">
+          <button id="pauseButton" type="button" aria-label="Sett spillet på pause"><span id="pauseLabel">PAUSE</span> <small>P</small></button>
+          <button id="quitButton" type="button" aria-label="Avslutt turen">AVSLUTT <small>Q</small></button>
+        </div>
+        <details id="debugPanel" class="debug-panel hidden-controls">
+          <summary>DEBUG</summary>
+          <label>Rotasjonshastighet <input id="debugRotation" type="number" min="0" max="2" step="0.05" value="0.45" /></label>
+          <label>Rullefart over bakken <span><input id="debugRollSpeed" type="number" min="1" max="100" step="1" value="20" /> %</span></label>
+          <label>Andel som ruller <span><input id="debugRollingShare" type="number" min="0" max="100" step="5" value="70" /> %</span></label>
+        </details>
+        <div id="pauseOverlay" class="pause-overlay hidden" aria-live="polite">
+          <strong>PAUSE</strong>
+          <span>Trykk Fortsett eller P</span>
+        </div>
+        <section id="tutorialOverlay" class="tutorial-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+          <div class="tutorial-card">
+            <p class="eyebrow">TURTIPS</p>
+            <h2 id="tutorialTitle"></h2>
+            <p id="tutorialText"></p>
+            <button id="tutorialContinue" class="primary" type="button">FORTSETT</button>
+            <label class="help-toggle tutorial-help-toggle">
+              <input id="tutorialHelpToggle" class="help-toggle-input" type="checkbox" />
+              <span class="help-toggle-switch" aria-hidden="true"></span>
+              <span>Skjul forklaringer</span>
+            </label>
+            <small>eller trykk <kbd>Space</kbd></small>
+          </div>
+        </section>
+
+        <section id="shopOverlay" class="shop-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+          <div class="shop-stall">
+            <div class="shop-awning" aria-hidden="true"></div>
+            <header class="shop-header">
+              <div class="shop-heading">
+                <p class="eyebrow">HYTTEBUTIKK</p>
+                <h2 id="shopTitle">Fjellhytta</h2>
+              </div>
+              <div class="shop-header-status" aria-label="Status før kjøp">
+                <div id="shopStrengthStatus" class="strength-panel shop-strength-panel" role="meter" aria-label="Hoppekraft" aria-valuemin="5" aria-valuemax="100" aria-valuenow="100">
+                  <div class="strength-track"><div id="shopStrengthFill" class="strength-fill"></div></div>
+                  <span class="strength-label">HOPPEKRAFT</span>
+                </div>
+                <div id="shopFishMeter" class="fish-meter shop-fish-meter" aria-label="0 av 3 fisker i sekken">
+                  <span class="fish-slot shop-fish-slot"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+                  <span class="fish-slot shop-fish-slot"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+                  <span class="fish-slot shop-fish-slot"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+                  <span class="fish-slot shop-fish-slot locked"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+                  <span class="fish-slot shop-fish-slot locked"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+                  <span class="fish-slot shop-fish-slot locked"><svg viewBox="0 0 48 30" aria-hidden="true"><path class="fish-tail" d="M14 15 2 5l3 10-3 10 12-10Z"/><path class="fish-body" d="M11 15C18 3 35 4 45 15 35 26 18 27 11 15Z"/><circle cx="36" cy="12" r="1.8"/></svg></span>
+                </div>
+                <div class="shop-wallet" aria-label="Tilgjengelige hjerter">
+                  <span aria-hidden="true">♥</span>
+                  <strong id="shopHearts">0</strong>
+                </div>
+              </div>
+            </header>
+            <div class="shop-items">
+              <button class="shop-item" type="button" data-shop-item="fish-slot">
+                <span class="shop-item-icon fish-slot-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path class="bag-handle" d="M22 19c1-9 19-9 20 0"/>
+                    <path class="bag-body" d="M15 20h34l5 35H10Z"/>
+                    <path class="bag-fold" d="M15 20c8 6 26 6 34 0"/>
+                    <path class="bag-fish" d="M29 39l-7-5 2 5-2 5 7-5c5-8 15-6 20 0-5 7-15 8-20 0Z"/>
+                    <circle class="bag-fish-eye" cx="43" cy="37.5" r="1.5"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Større sekk</strong><small>Gir plass til én fisk til. Maks seks.</small></span>
+                <span class="shop-item-price" data-shop-price>10</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="fish">
+                <span class="shop-item-icon fish-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path d="M22 32 7 18l4 14-4 14 15-14Z"/>
+                    <path d="M18 32c9-17 31-15 42 0-11 15-33 17-42 0Z"/>
+                    <circle cx="49" cy="27" r="2"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Fisk</strong><small>Gir ett dobbelthopp. Krever ledig plass i sekken.</small></span>
+                <span class="shop-item-price" data-shop-price>3</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="jump-broth">
+                <span class="shop-item-icon broth-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path class="broth-steam" d="M23 20c-5-6 5-7 0-14M36 20c-5-6 5-7 0-14"/>
+                    <path d="M13 23h37l-4 25c-1 6-7 10-14 10s-13-4-14-10Z"/>
+                    <path d="M49 29h5c8 0 7 14-4 14"/>
+                    <path class="broth-heart" d="M31 44c-9-6-3-14 1-8 4-6 10 2 1 8l-1 1Z"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Hoppebuljong</strong><small>Fyller hoppekraften helt opp.</small></span>
+                <span class="shop-item-price" data-shop-price>6</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="kvikklunsj">
+                <span class="shop-item-icon snack-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path class="snack-wrapper" d="M16 5h32l6 10-7 44H16L9 15Z"/>
+                    <path class="snack-bar" d="M19 12h26l4 7-5 33H19l-5-33Z"/>
+                    <path class="snack-grid" d="M20 22h25M19 32h25M18 42h25M28 15l-4 37M39 15l-4 37"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Kvikklunsj</strong><small>Gratis dobbelthopp i 10 sekunder. Bruk K på PC.</small></span>
+                <span class="shop-item-price" data-shop-price>6</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="first-aid">
+                <span class="shop-item-icon aid-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <rect x="8" y="18" width="48" height="38" rx="8"/>
+                    <path d="M24 18v-7h16v7M32 26v22M21 37h22"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Førstehjelpspakke</strong><small>Beskytter mot steintreff. Du kan bære to.</small></span>
+                <span class="shop-item-price" data-shop-price>10</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="small-jump-broth">
+                <span class="shop-item-icon small-broth-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path class="broth-steam" d="M26 20c-4-5 4-6 0-12M37 20c-4-5 4-6 0-12"/>
+                    <path d="M16 25h31l-3 20c-1 6-6 10-13 10s-11-4-12-10Z"/>
+                    <path d="M46 30h5c7 0 6 12-4 12"/>
+                    <path class="broth-mark" d="M22 39h19"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Liten hoppebuljong</strong><small>Fyller opp hoppekraften med 1/5. Maks to per rast.</small></span>
+                <span class="shop-item-price" data-shop-price>1</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="rain-hat">
+                <span class="shop-item-icon rain-hat-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path class="rain-hat-crown" d="M18 35c1-15 8-24 17-24s16 9 17 24Z"/>
+                    <path class="rain-hat-brim" d="M10 34c12 4 32 4 46 0l3 9c-17 6-36 6-52 0Z"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Sydvest</strong><small>Beskytter hoppekraften mot regn resten av turen.</small></span>
+                <span class="shop-item-price" data-shop-price>15</span>
+              </button>
+              <button class="shop-item" type="button" data-shop-item="boots">
+                <span class="shop-item-icon boots-shop-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64">
+                    <path class="boot-body" d="M10 8h18v33c0 5 7 6 17 7 8 1 11 4 9 9H13c-3 0-5-3-4-7Z"/>
+                    <path class="boot-body" d="M36 8h17v30c0 4 4 6 7 8v11H39c-3 0-5-3-4-7Z"/>
+                    <path class="boot-cuff" d="M9 8h20v9H9ZM35 8h19v9H35Z"/>
+                  </svg>
+                </span>
+                <span class="shop-item-copy"><strong>Støvler</strong><small>Beskytter hjertene i elver. Hoppekraft og fart svekkes fortsatt.</small></span>
+                <span class="shop-item-price" data-shop-price>10</span>
+              </button>
+            </div>
+            <p id="shopStatus" class="shop-status" aria-live="polite"></p>
+            <div class="shop-footer-actions">
+              <button id="shopUndoButton" class="shop-undo-button" type="button" disabled>ANGRE KJØP</button>
+              <button id="shopCloseButton" class="shop-close-button" type="button">GÅ UT AV BUTIKK</button>
+            </div>
+            <div class="shop-counter" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <section id="quitConfirmOverlay" class="quit-confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="quitConfirmTitle">
+          <div class="quit-confirm-card">
+            <p class="eyebrow">AVSLUTTE TUREN?</p>
+            <h2 id="quitConfirmTitle">Er du sikker?</h2>
+            <p id="quitConfirmText">Resultatet lagres som personlig rekord, men turen avsluttes med én gang.</p>
+            <div class="quit-confirm-actions">
+              <button id="quitCancelButton" class="quit-cancel-button" type="button">FORTSETT TUREN</button>
+              <button id="quitConfirmButton" class="quit-confirm-button" type="button">AVSLUTT</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="fullscreenHelp" class="fullscreen-help hidden" role="dialog" aria-modal="true" aria-labelledby="fullscreenHelpTitle">
+          <div class="fullscreen-help-card">
+            <p class="eyebrow">FULLSKJERM PÅ IPHONE</p>
+            <h2 id="fullscreenHelpTitle">Skjul Safari-linjene</h2>
+            <p>Trykk <strong>Del</strong>, velg <strong>Legg til på Hjem-skjermen</strong>, og åpne spillet derfra. Da starter det i fullskjerm.</p>
+            <button id="fullscreenHelpClose" class="primary" type="button">SKJØNNER</button>
+          </div>
+        </section>
+
+        <section id="priceEditorOverlay" class="price-editor-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="priceEditorTitle">
+          <form id="priceEditorForm" class="price-editor-card">
+            <p class="eyebrow">LOKAL PROSJEKTINNSTILLING</p>
+            <h2 id="priceEditorTitle">Butikkpriser</h2>
+            <p>Prisene lagres i prosjektfilen og følger med ved neste publisering.</p>
+            <div class="price-editor-grid">
+              <label>Større sekk <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="fish-slot" required /></label>
+              <label>Fisk <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="fish" required /></label>
+              <label>Hoppebuljong <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="jump-broth" required /></label>
+              <label>Liten hoppebuljong <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="small-jump-broth" required /></label>
+              <label>Kvikklunsj <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="kvikklunsj" required /></label>
+              <label>Førstehjelpspakke <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="first-aid" required /></label>
+              <label>Ekstra førstehjelpspakke <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="first-aid-extra" required /></label>
+              <label>Sydvest <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="rain-hat" required /></label>
+              <label>Støvler <input type="number" min="0" max="999" step="1" inputmode="numeric" data-price-field="boots" required /></label>
+            </div>
+            <p id="priceEditorStatus" class="price-editor-status" aria-live="polite"></p>
+            <div class="price-editor-actions">
+              <button id="priceEditorDefaults" class="price-editor-defaults" type="button">STANDARDVERDIER</button>
+              <button id="priceEditorCancel" class="price-editor-cancel" type="button">LUKK</button>
+              <button id="priceEditorSave" class="primary" type="submit">LAGRE I PROSJEKTET</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="orientationBlocker" class="orientation-blocker" role="status" aria-live="polite" aria-label="Snu skjermen til landskapsmodus">
+          <div class="orientation-card">
+            <div class="orientation-logo" aria-label="Marits Heart Stone Quest"><span>Marits</span><em>Heart Stone</em><span>Quest</span></div>
+            <div class="rotate-phone" aria-hidden="true"><span></span></div>
+            <h2>Snu skjermen</h2>
+            <p>Spillet fortsetter automatisk i landskapsmodus.</p>
+          </div>
+        </section>
+
+        <section id="startScreen" class="screen start-screen">
+          <div class="screen-card">
+            <div class="menu-grid">
+              <div class="menu-primary">
+                <p class="eyebrow">EN FJELLFERD</p>
+                <h1>Marits<br /><em><button id="priceEditorButton" class="stone-debug" type="button" aria-label="Rediger butikkpriser">Heart</button> <button id="stoneDebugButton" class="stone-debug" type="button" aria-label="Start steinrasdebug">Stone</button></em><br />Quest</h1>
+                <p class="difficulty-heading">VELG VANSKELIGHET</p>
+                <div class="difficulty-options" role="group" aria-label="Velg vanskelighetsgrad">
+                  <button class="difficulty-button easy" type="button" data-difficulty="easy"><span>LETT</span></button>
+                  <button class="difficulty-button normal" type="button" data-difficulty="normal"><span>NORMAL</span></button>
+                  <button class="difficulty-button hard" type="button" data-difficulty="hard"><span>VANSKELIG</span></button>
+                  <button class="difficulty-button expert" type="button" data-difficulty="expert"><span>EKSPERT</span></button>
+                </div>
+                <button id="howToPlayButton" class="menu-help-button" type="button">HVORDAN SPILLE</button>
+                <p id="highScore" class="high-score"></p>
+              </div>
+              <aside class="menu-sidebar">
+                <section class="leaderboard" aria-labelledby="leaderboardTitle">
+                  <div class="leaderboard-heading">
+                    <p id="leaderboardTitle" class="eyebrow">VERDENS BESTE</p>
+                    <button id="leaderboardRefreshButton" class="leaderboard-refresh" type="button" aria-label="Oppdater topplisten">
+                      <span>OPPDATER</span><b aria-hidden="true">↻</b>
+                    </button>
+                  </div>
+                  <div class="leaderboard-groups">
+                    <section class="leaderboard-group" aria-labelledby="leaderboardListTitle">
+                      <p id="leaderboardListTitle" class="leaderboard-group-title">TOPP 20</p>
+                      <ol id="leaderboardList" class="leaderboard-list"><li>Henter topplisten …</li></ol>
+                    </section>
+                  </div>
+                  <p id="leaderboardStatus" class="leaderboard-status" aria-live="polite"></p>
+                </section>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section id="howToPlayScreen" class="screen how-to-play-screen hidden" aria-labelledby="howToPlayTitle">
+          <div class="guide-card">
+            <header class="guide-header">
+              <div>
+                <p class="eyebrow">TURHÅNDBOK</p>
+                <h2 id="howToPlayTitle">Hvordan spille</h2>
+              </div>
+              <p>Kom lengst mulig gjennom Rondane, samle det du trenger og velg innkjøpene med omhu.</p>
+            </header>
+            <div class="guide-columns">
+              <section class="guide-column" aria-labelledby="gameplayGuideTitle">
+                <h3 id="gameplayGuideTitle">På fjellturen</h3>
+                <div class="guide-list">
+                  <article class="guide-item"><span class="guide-icon">↥</span><div><strong>Hopp</strong><p>Trykk og hold skjermen eller <kbd>Space</kbd>. Et langt trykk gir et høyere og lengre hopp.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon fish-guide-icon">🐟</span><div><strong>Fisk og dobbelthopp</strong><p>Fang fisk som hopper opp av elvene. Trykk igjen i luften for å bruke én fisk og hoppe på nytt.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon distance-guide-icon">⌁</span><div><strong>Reise, vanskelighetsgrad og toppliste</strong><p>Reisemåleren er poengsummen din. Høyere vanskelighetsgrad gir større grunn- og toppfart. Vanlige turer kan registreres på den globale topplisten.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon heart-guide-icon">♥</span><div><strong>Hjerter og fart</strong><p>Hjerter er både liv og betalingsmiddel. Hvert hjerte øker farten ett trinn; et hindringstreff senker den ett trinn.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon meter-guide-icon">▰</span><div><strong>Hoppekraft</strong><p>Lav hoppekraft gir lavere hopp. Elver og regn svekker den, men den stopper på et minimum så du kan kjempe deg videre.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon water-guide-icon">≈</span><div><strong>Elver og regn</strong><p>Elver koster hjerte, fart og hoppekraft. Regn tapper hoppekraft og gjør elvene bredere.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon rock-guide-icon">◆</span><div><strong>Steiner og steinras</strong><p>Hopp oppå eller over steinene. Treff tar omtrent en tredel av hjertene og blir farligere utover turen.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon fire-guide-icon">♨</span><div><strong>Bål</strong><p>Et bål koster hjerter, stanser turen kort og fyller hoppekraften. På PC kan du bruke <kbd>B</kbd>.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon hut-guide-icon">⌂</span><div><strong>Hytter</strong><p>Marit stanser trygt ved hyttene. Trykk på salgsboden for å handle, eller velg Fortsett for å gå videre.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon controls-guide-icon">Ⅱ</span><div><strong>Pause, lyd, fullskjerm og avslutt</strong><p>Bruk knappene på skjermen. På PC er <kbd>P</kbd> pause og <kbd>Q</kbd> avslutt. Lyd og fullskjerm styres øverst til høyre.</p></div></article>
+                </div>
+              </section>
+              <section class="guide-column shop-guide-column" aria-labelledby="shopGuideTitle">
+                <h3 id="shopGuideTitle">I hyttebutikken</h3>
+                <div class="guide-list">
+                  <article class="guide-item"><span class="guide-icon bag-guide-icon">🎒</span><div><strong>Større sekk</strong><p>Åpner ett nytt fiskespor. Sekken kan ha maksimalt seks spor.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon fish-guide-icon">🐟</span><div><strong>Fisk</strong><p>Fyller ett ledig spor i sekken og gir ett dobbelthopp.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon broth-guide-icon">☕</span><div><strong>Hoppebuljong</strong><p>Fyller hoppekraftmåleren helt opp med én gang.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon broth-guide-icon">☕</span><div><strong>Liten hoppebuljong</strong><p>Fyller opp en femdel av hoppekraftmåleren med én gang. Du kan kjøpe maksimalt to per hyttebesøk.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon snack-guide-icon">▥</span><div><strong>Kvikklunsj</strong><p>Gir gratis dobbelthopp i en kort periode. Brukes med utstyrsknappen eller <kbd>K</kbd> på PC.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon aid-guide-icon">✚</span><div><strong>Førstehjelpspakke</strong><p>Beskytter automatisk mot neste steintreff. Marit kan bære to pakker.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon hat-guide-icon">⌒</span><div><strong>Sydvest</strong><p>Hindrer regn i å tappe hoppekraft resten av turen.</p></div></article>
+                  <article class="guide-item"><span class="guide-icon boots-guide-icon">♜</span><div><strong>Støvler</strong><p>Beskytter hjertene i elver. Du mister fortsatt hoppekraft og ett fartstrinn.</p></div></article>
+                </div>
+              </section>
+            </div>
+            <button id="howToPlayBackButton" class="primary guide-back-button" type="button">TILBAKE TIL HOVEDMENYEN</button>
+          </div>
+        </section>
+
+        <section id="gameOverScreen" class="screen hidden">
+          <div class="screen-card">
+            <p class="eyebrow">TURSLUTT</p>
+            <h2>Marit trenger<br />flere hjerter</h2>
+            <p id="finalScore"></p>
+            <p id="newRecord" class="record"></p>
+            <form id="scoreForm" class="score-form">
+              <label for="scoreName">Skriv navnet ditt på topplisten</label>
+              <div class="score-entry">
+                <input id="scoreName" name="name" type="text" maxlength="20" autocomplete="nickname" placeholder="Navnet ditt" required />
+                <button id="scoreSubmit" class="primary" type="submit">LAGRE POENG</button>
+              </div>
+              <p id="scoreStatus" class="score-status" aria-live="polite"></p>
+            </form>
+            <button id="restartButton" class="primary" type="button">PRØV IGJEN</button>
+          </div>
+        </section>
+      </section>
+    </main>
+  <script src="game.js?v=33d4241ac4b9"></script>
+  </body>
+</html>

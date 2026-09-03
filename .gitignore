@@ -1,0 +1,12 @@
+# Local deployment state and transient publish bundles
+.herenow/state.json
+.deploy-here-now-*/
+
+# Local dependencies and diagnostic output
+node_modules/
+npm-debug.log*
+*.log
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
